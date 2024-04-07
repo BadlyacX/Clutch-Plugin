@@ -1,0 +1,4 @@
+name: ClutchPlugin
+main: com.badlyac.ClutchPlugin.ClutchPluginMain
+version: 1.0
+author: BadlyAc
