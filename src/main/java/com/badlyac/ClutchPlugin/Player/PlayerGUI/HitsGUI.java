@@ -13,7 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class HitsGUI implements Listener {
 
-    private static final String GUI_TITLE = ChatColor.AQUA + "hits";
+    public static final String GUI_TITLE = ChatColor.AQUA + "hits";
 
     public static void openClutchGUI(Player player) {
         Inventory gui = Bukkit.createInventory(player, 9 * 6, GUI_TITLE);
