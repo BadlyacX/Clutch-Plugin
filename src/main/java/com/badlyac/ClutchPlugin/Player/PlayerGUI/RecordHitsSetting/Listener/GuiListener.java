@@ -36,13 +36,11 @@ public class GuiListener implements Listener {
             for (int i = 0; i < contents.length; i++) {
                 ItemStack item = contents[i];
                 if (item != null && item.getType() == Material.STAINED_GLASS_PANE) {
-                    // 獲取玻璃片的顏色
                     Material color = item.getType();
                     records.add(new PlayerInventoryRecord(color.name(), i));
                 }
             }
 
-            // 更新該玩家的最新記錄
             playerRecords.put(playerUUID, records);
         }
     }
@@ -53,13 +51,16 @@ public class GuiListener implements Listener {
 
         config.set("PlayerData", null);
 
-        for (PlayerInventoryRecord record : records) {
-            String path = "PlayerData." + record.getPlayerUUID() + ".items";
+        for (Map.Entry<UUID, List<PlayerInventoryRecord>> entry : playerRecords.entrySet()) {
+            UUID playerUUID = entry.getKey();
+            List<PlayerInventoryRecord> playerRecords = entry.getValue();
+            String path = "PlayerData." + playerUUID.toString() + ".items";
             List<String> itemList = config.getStringList(path);
-            itemList.add("Slot: " + record.getSlot() + ", Color: " + record.getColor());
+            for (PlayerInventoryRecord record : playerRecords) {
+                itemList.add("Slot: " + record.getSlot() + ", Color: " + record.getColor());
+            }
             config.set(path, itemList);
         }
-
         try {
             config.save(configFile);
         } catch (Exception e) {
