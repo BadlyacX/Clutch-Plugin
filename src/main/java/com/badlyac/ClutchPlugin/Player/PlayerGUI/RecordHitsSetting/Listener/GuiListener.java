@@ -1,87 +1,68 @@
 package com.badlyac.ClutchPlugin.Player.PlayerGUI.RecordHitsSetting.Listener;
 
-import com.badlyac.ClutchPlugin.Player.PlayerGUI.HitsGUI;
-
-import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.util.*;
-
 public class GuiListener implements Listener {
-    final JavaPlugin plugin;
-    final List<PlayerInventoryRecord> records;
-    private final Map<UUID, List<PlayerInventoryRecord>> playerRecords = new HashMap<>();
+    private JavaPlugin plugin;
 
     public GuiListener(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.records = new ArrayList<>();
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getInventory().getTitle().equals(HitsGUI.GUI_TITLE)) {
-            Player player = (Player) event.getPlayer();
-            UUID playerUUID = player.getUniqueId();
-            ItemStack[] contents = event.getInventory().getContents();
-            List<PlayerInventoryRecord> records = new ArrayList<>();
+        Inventory inventory = event.getInventory();
+        Player player = (Player) event.getPlayer();
 
-            for (int i = 0; i < contents.length; i++) {
-                ItemStack item = contents[i];
-                if (item != null && item.getType() == Material.STAINED_GLASS_PANE) {
-                    Material color = item.getType();
-                    records.add(new PlayerInventoryRecord(color.name(), i));
+        if (inventory.getTitle().equals(ChatColor.AQUA + "hits")) {
+            String uuid = player.getUniqueId().toString();
+
+            FileConfiguration config = plugin.getConfig();
+
+            boolean hasChanged = false;
+            for (int i = 0; i < inventory.getSize(); i++) {
+                ItemStack currentItem = inventory.getItem(i);
+                String path = uuid + ".gui." + i;
+                if (currentItem != null) {
+                    String currentItemInfo = getItemInfo(currentItem, i);
+                    String savedItemInfo = config.getString(path);
+                    if (savedItemInfo == null || !savedItemInfo.equals(currentItemInfo)) {
+                        hasChanged = true;
+                        break;
+                    }
+                } else if (config.contains(path)) {
+                    hasChanged = true;
+                    break;
                 }
             }
 
-            playerRecords.put(playerUUID, records);
-        }
-    }
-
-    public void saveRecordsToFile() {
-        File configFile = new File(plugin.getDataFolder(), "config.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-
-        config.set("PlayerData", null);
-
-        for (Map.Entry<UUID, List<PlayerInventoryRecord>> entry : playerRecords.entrySet()) {
-            UUID playerUUID = entry.getKey();
-            List<PlayerInventoryRecord> playerRecords = entry.getValue();
-            String path = "PlayerData." + playerUUID.toString() + ".items";
-            List<String> itemList = config.getStringList(path);
-            for (PlayerInventoryRecord record : playerRecords) {
-                itemList.add("Slot: " + record.getSlot() + ", Color: " + record.getColor());
+            if (hasChanged) {
+                for (int i = 0; i < inventory.getSize(); i++) {
+                    ItemStack item = inventory.getItem(i);
+                    String path = uuid + ".gui." + i;
+                    if (item != null) {
+                        String itemInfo = getItemInfo(item, i);
+                        config.set(path, itemInfo);
+                    } else {
+                        config.set(path, null);
+                    }
+                }
+                plugin.saveConfig();
             }
-            config.set(path, itemList);
-        }
-        try {
-            config.save(configFile);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
-    private static class PlayerInventoryRecord {
-        private final String color;
-        private final int slot;
-
-        public PlayerInventoryRecord(String color, int slot) {
-            this.color = color;
-            this.slot = slot;
-        }
-
-        public String getColor() {
-            return color;
-        }
-
-        public int getSlot() {
-            return slot;
-        }
+    private String getItemInfo(ItemStack item, int slotIndex) {
+        return "type: " + item.getType().toString() +
+                ", amount: " + item.getAmount() +
+                ", durability: " + item.getDurability() +
+                ", position: " + slotIndex;
     }
 }
