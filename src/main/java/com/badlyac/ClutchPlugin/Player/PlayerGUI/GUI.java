@@ -1,5 +1,7 @@
 package com.badlyac.ClutchPlugin.Player.PlayerGUI;
 
+import com.badlyac.ClutchPlugin.ClutchPluginMain;
+import com.badlyac.ClutchPlugin.Player.PlayerGUI.RecordHitsSetting.Util.GuiUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -54,6 +56,8 @@ public class GUI implements Listener {
 
                 if (clickedItem.getType() == Material.STICK && displayName.equals(ChatColor.AQUA + "hits")) {
                     HitsGUI.openClutchGUI(player);
+                    GuiUtil guiUtil = new GuiUtil(ClutchPluginMain.getInstance());
+                    guiUtil.loadGuiItems(player);
                 } else if (clickedItem.getType() == Material.WATCH && displayName.equals(ChatColor.AQUA + "Ticks")) {
                     // Handle clock item click
                 }

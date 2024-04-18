@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GuiListener implements Listener {
-    private JavaPlugin plugin;
+    final JavaPlugin plugin;
 
     public GuiListener(JavaPlugin plugin) {
         this.plugin = plugin;
