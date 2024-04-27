@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GuiUtil {
-    private JavaPlugin plugin;
+    final JavaPlugin plugin;
 
     public GuiUtil(JavaPlugin plugin) {
         this.plugin = plugin;
